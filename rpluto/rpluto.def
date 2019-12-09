@@ -1,0 +1,21 @@
+BootStrap: docker
+From: 32bit/ubuntu
+
+%post
+    cd ~
+    wget https://downloads.ccdc.cam.ac.uk/rpluto/rpluto_linux.tar.gz
+    tar -xvf rpluto_linux.tar.gz
+
+%environment
+    export RPLUTOHOME=$HOME
+
+%labels
+    Author Santiago Lacalle Puig
+    Version v0.0.1
+
+%help
+    RPluto is a tool for visualising molecular crystal structures.
+    RPluto (the "Program") is a copyright work belonging to the Cambridge Crystallographic Data Centre ("CCDC").
+
+%runscript
+    $HOME/bin/rpluto $@
