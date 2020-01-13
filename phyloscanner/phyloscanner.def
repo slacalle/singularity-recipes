@@ -1,0 +1,68 @@
+Bootstrap: docker
+From: rocker/r-ubuntu:18.04
+
+%labels
+    Author Santiago Lacalle Puig
+    Author_email slacalle@imperial.ac.uk
+    Version v0.1
+
+%help
+    Container for phyloscanner - Analysing pathogen genetic diversity and relationships between and within hosts at once, in windows along the genome.
+
+%post
+    apt-get update && apt-get -y upgrade 
+    apt-get install git build-essential libxml2-dev libcurl4-openssl-dev libssl-dev libmagick++-dev libudunits2-dev -y
+    apt-get install samtools python3 python3-pysam python3-biopython mafft raxml libgdal-dev -y
+
+    R -e 'install.packages("devtools", repos="https://cloud.r-project.org/", dependencies = TRUE)'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("ggplot2")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("data.table")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("dtplyr")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("rgdal")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("sf")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("units")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("network")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("scales")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("sna")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("igraph")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("intergraph")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("knitR")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("RColorBrewer")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("testthat")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("argparse")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("ape")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("extraDistr")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("ff")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("GGally")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("gtable")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("kimisc")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("pegas")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("phangorn")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("phytools")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("prodlim")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("reshape2")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("tidyverse")'
+    R -e 'options(repos = c(CRAN = "https://cran.rstudio.com"));install.packages("viridis")'
+    R -e 'options(unzip = "internal");install.packages("BiocManager")'
+    R -e 'library("BiocManager"); BiocManager::install("RBGL")'
+    R -e 'library("BiocManager"); BiocManager::install("Rsamtools")'
+    R -e 'library("BiocManager"); BiocManager::install("ggtree")'
+    R -e 'library("BiocManager"); BiocManager::install("treeio")'
+    R -e 'library("BiocManager"); BiocManager::install("GenomicRanges")'
+    R -e 'library("BiocManager"); BiocManager::install("GenomeInfoDb")'
+    R -e 'library("BiocManager"); BiocManager::install("GenomeInfoDbData")'
+    R -e 'options(unzip = "internal");library(devtools);devtools::install_github("briatte/ggnet")'
+
+    cd / && git clone https://github.com/BDI-pathogens/phyloscanner.git && cd phyloscanner/phyloscannerR
+    R CMD INSTALL .
+ 
+    R -e 'options(unzip = "internal");library(devtools);devtools::install_github("olli0601/Phyloscanner.R.utilities", dependencies=TRUE, build_vignettes=FALSE, INSTALL_opts="--no-staged-install")'
+
+%test
+    #!/bin/sh
+    exec R --slave -e "library(devtools)"
+    exec R --slave -e "library(phyloscannerR)"
+    exec R --slave -e "library(phyloscanner.R.utilities)"
+
+%runscript
+    R --no-save --no-restore $@
